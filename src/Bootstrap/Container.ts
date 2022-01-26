@@ -29,10 +29,12 @@ export class ContainerConfigLoader {
     container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
       apiVersion: 'latest',
       endpoint: env.get('SNS_ENDPOINT'),
+      region: env.get('SNS_AWS_REGION'),
     }))
 
     // env vars
     container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN'))
+    container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION'))
     container.bind(TYPES.SNS_ENDPOINT).toConstantValue(env.get('SNS_ENDPOINT'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
