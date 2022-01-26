@@ -28,14 +28,21 @@ export class ContainerConfigLoader {
 
     container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
       apiVersion: 'latest',
-      endpoint: new AWS.Endpoint(env.get('SNS_ENDPOINT')),
+      endpoint: env.get('SNS_ENDPOINT'),
+      sslEnabled: false,
       region: env.get('SNS_AWS_REGION'),
+      credentials: {
+        secretAccessKey: env.get('SNS_AWS_SECRET_ACCESS_KEY'),
+        accessKeyId: env.get('SNS_AWS_ACCESS_KEY_ID'),
+      },
     }))
 
     // env vars
     container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN'))
     container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION'))
     container.bind(TYPES.SNS_ENDPOINT).toConstantValue(env.get('SNS_ENDPOINT'))
+    container.bind(TYPES.SNS_AWS_SECRET_ACCESS_KEY).toConstantValue(env.get('SNS_AWS_SECRET_ACCESS_KEY'))
+    container.bind(TYPES.SNS_AWS_ACCESS_KEY_ID).toConstantValue(env.get('SNS_AWS_ACCESS_KEY_ID'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
