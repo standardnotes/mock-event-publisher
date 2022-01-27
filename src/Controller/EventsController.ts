@@ -18,6 +18,8 @@ export class EventsController extends BaseHttpController {
 
   @httpPost('/')
   async publishEvent(request: Request): Promise<results.JsonResult> {
+    this.logger.debug(`Received request with body: ${JSON.stringify(request.body)} with headers: ${JSON.stringify(request.headers)}`)
+
     this.logger.info(`Received event ${request.body.eventType} with payload: ${JSON.stringify(request.body.eventPayload)}`)
 
     await this.domainEventPublisher.publish({
