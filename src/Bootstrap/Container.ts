@@ -26,23 +26,28 @@ export class ContainerConfigLoader {
     })
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
-    container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
+    const snsConfig: AWS.SNS.Types.ClientConfiguration = {
       apiVersion: 'latest',
-      endpoint: env.get('SNS_ENDPOINT'),
-      sslEnabled: false,
       region: env.get('SNS_AWS_REGION'),
-      credentials: {
-        secretAccessKey: env.get('SNS_AWS_SECRET_ACCESS_KEY'),
-        accessKeyId: env.get('SNS_AWS_ACCESS_KEY_ID'),
-      },
-    }))
+    }
+    if (env.get('SNS_ENDPOINT', true)) {
+      snsConfig.endpoint = env.get('SNS_ENDPOINT', true)
+    }
+    if (env.get('SNS_DISABLE_SSL', true) === 'true') {
+      snsConfig.sslEnabled = false
+    }
+    snsConfig.credentials = {
+      accessKeyId: env.get('SNS_ACCESS_KEY_ID'),
+      secretAccessKey: env.get('SNS_SECRET_ACCESS_KEY'),
+    }
+    container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS(snsConfig))
 
     // env vars
     container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN'))
     container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION'))
     container.bind(TYPES.SNS_ENDPOINT).toConstantValue(env.get('SNS_ENDPOINT'))
-    container.bind(TYPES.SNS_AWS_SECRET_ACCESS_KEY).toConstantValue(env.get('SNS_AWS_SECRET_ACCESS_KEY'))
-    container.bind(TYPES.SNS_AWS_ACCESS_KEY_ID).toConstantValue(env.get('SNS_AWS_ACCESS_KEY_ID'))
+    container.bind(TYPES.SNS_SECRET_ACCESS_KEY).toConstantValue(env.get('SNS_SECRET_ACCESS_KEY'))
+    container.bind(TYPES.SNS_ACCESS_KEY_ID).toConstantValue(env.get('SNS_ACCESS_KEY_ID'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
