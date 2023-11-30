@@ -1,26 +1,16 @@
-FROM node:20.6.1-alpine3.15
+FROM node:20.6.1-alpine
 
-ARG UID=1001
-ARG GID=1001
+RUN apk add --update \
+  curl \
+  && rm -rf /var/cache/apk/*
 
-RUN addgroup -S mockevent -g $GID && adduser -D -S mockevent -G mockevent -u $UID
+ENV NODE_ENV production
 
-RUN apk add --update --no-cache \
-    curl \
-    alpine-sdk \
-    python3
+RUN corepack enable
 
-WORKDIR /var/www
+COPY ./ /workspace
 
-RUN chown -R $UID:$GID .
-
-USER mockevent
-
-COPY --chown=$UID:$GID package.json yarn.lock /var/www/
-
-RUN yarn install --immutable
-
-COPY --chown=$UID:$GID . /var/www
+WORKDIR /workspace
 
 RUN yarn build
 
