@@ -9,28 +9,25 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  publish-docker-hub:
+
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Node
       uses: actions/setup-node@v3
       with:
         registry-url: 'https://registry.npmjs.org'
         node-version-file: '.nvmrc'
-    - run: yarn install --immutable
-    - run: yarn build
 
-  publish-docker-hub:
-    needs: test
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
+    - name: Enable corepack
+      run: corepack enable
 
     - run: cp .env.sample .env
+
+    - run: yarn install --immutable
 
     - name: Build
       run: yarn build
