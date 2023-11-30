@@ -1,4 +1,4 @@
-import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { DomainEventPublisherInterface, DomainEventService } from '@standardnotes/domain-events'
 import { Request } from 'express'
 import { TimerInterface } from '@standardnotes/time'
 import { inject } from 'inversify'
@@ -30,6 +30,7 @@ export class EventsController extends BaseHttpController {
           userIdentifier: 'fake-event',
           userIdentifierType: 'uuid',
         },
+        origin: DomainEventService.Payments,
       },
       payload: request.body.eventPayload,
     })

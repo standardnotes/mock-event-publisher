@@ -1,12 +1,29 @@
 {
-  "extends": "./node_modules/@standardnotes/config/src/tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
+    "alwaysStrict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "es2022",
     "outDir": "dist"
   },
   "include": [
     "src/**/*",
-    "bin/**/*",
-    "migrations/**/*"
+    "bin/**/*"
   ]
 }

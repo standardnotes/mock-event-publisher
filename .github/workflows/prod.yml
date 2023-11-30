@@ -6,20 +6,21 @@ concurrency:
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+    - name: Set up Node
+      uses: actions/setup-node@v3
       with:
-        node-version: '16.x'
-    - run: yarn install --pure-lockfile
-    - run: yarn test
+        registry-url: 'https://registry.npmjs.org'
+        node-version-file: '.nvmrc'
+    - run: yarn install --immutable
+    - run: yarn build
 
   publish-docker-hub:
     needs: test
@@ -27,15 +28,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+
     - run: cp .env.sample .env
-    - name: Get the version
-      id: get_version
-      run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+
+    - name: Build
+      run: yarn build
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
       with:
-        name: standardnotes/mock-event-publisher
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: "latest,${{ github.sha }},${{ steps.get_version.outputs.version }}"
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@master
+      with:
+        platforms: all
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@master
+
+    - name: Publish Docker image
+      uses: docker/build-push-action@v4
+      with:
+        builder: ${{ steps.buildx.outputs.name }}
+        context: .
+        file: Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: |
+          standardnotes/mock-event-publisher:latest
+          standardnotes/mock-event-publisher:${{ github.sha }}

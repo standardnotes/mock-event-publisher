@@ -1,5 +1,5 @@
 import * as winston from 'winston'
-import * as AWS from 'aws-sdk'
+import { SNSClient, SNSClientConfig } from '@aws-sdk/client-sns'
 import { Container } from 'inversify'
 import { TimerInterface, Timer } from '@standardnotes/time'
 
@@ -26,21 +26,18 @@ export class ContainerConfigLoader {
     })
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
-    const snsConfig: AWS.SNS.Types.ClientConfiguration = {
-      apiVersion: 'latest',
-      region: env.get('SNS_AWS_REGION'),
+    const snsConfig: SNSClientConfig = {
+      region: env.get('SNS_AWS_REGION', true),
     }
     if (env.get('SNS_ENDPOINT', true)) {
       snsConfig.endpoint = env.get('SNS_ENDPOINT', true)
-    }
-    if (env.get('SNS_DISABLE_SSL', true) === 'true') {
-      snsConfig.sslEnabled = false
     }
     snsConfig.credentials = {
       accessKeyId: env.get('SNS_ACCESS_KEY_ID'),
       secretAccessKey: env.get('SNS_SECRET_ACCESS_KEY'),
     }
-    container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS(snsConfig))
+    const snsClient = new SNSClient(snsConfig)
+    container.bind<SNSClient>(TYPES.SNS).toConstantValue(snsClient)
 
     // env vars
     container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN'))

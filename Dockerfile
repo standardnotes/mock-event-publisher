@@ -1,4 +1,4 @@
-FROM node:16.13.1-alpine3.15
+FROM node:20.6.1-alpine3.15
 
 ARG UID=1001
 ARG GID=1001
@@ -18,7 +18,7 @@ USER mockevent
 
 COPY --chown=$UID:$GID package.json yarn.lock /var/www/
 
-RUN yarn install --pure-lockfile
+RUN yarn install --immutable
 
 COPY --chown=$UID:$GID . /var/www
 
